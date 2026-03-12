@@ -2,8 +2,16 @@
   "name": "@threeforged/lod-generator",
   "version": "0.1.0",
   "type": "module",
-  "description": "LOD generation plugin for ThreeForged",
+  "description": "Generate levels of detail for Three.js meshes — automatic mesh simplification for distance-based rendering",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/threeforged/threeforged.git",
+    "directory": "packages/lod-generator"
+  },
+  "homepage": "https://github.com/threeforged/threeforged/tree/main/packages/lod-generator#readme",
+  "bugs": "https://github.com/threeforged/threeforged/issues",
+  "keywords": ["threejs", "three.js", "3d", "lod", "level-of-detail", "mesh-simplification", "optimization"],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {

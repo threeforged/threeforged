@@ -2,8 +2,16 @@
   "name": "@threeforged/performance-auditor",
   "version": "0.1.0",
   "type": "module",
-  "description": "Performance auditing plugin for ThreeForged",
+  "description": "Audit Three.js scene performance — draw calls, shader complexity, overdraw, and runtime bottlenecks",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/threeforged/threeforged.git",
+    "directory": "packages/performance-auditor"
+  },
+  "homepage": "https://github.com/threeforged/threeforged/tree/main/packages/performance-auditor#readme",
+  "bugs": "https://github.com/threeforged/threeforged/issues",
+  "keywords": ["threejs", "three.js", "3d", "performance", "auditing", "optimization"],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {

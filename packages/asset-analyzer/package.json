@@ -2,8 +2,16 @@
   "name": "@threeforged/asset-analyzer",
   "version": "0.1.0",
   "type": "module",
-  "description": "Asset analysis plugin for ThreeForged",
+  "description": "Analyze 3D assets for performance issues — high poly counts, duplicate materials, large textures, and more",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/threeforged/threeforged.git",
+    "directory": "packages/asset-analyzer"
+  },
+  "homepage": "https://github.com/threeforged/threeforged/tree/main/packages/asset-analyzer#readme",
+  "bugs": "https://github.com/threeforged/threeforged/issues",
+  "keywords": ["threejs", "three.js", "3d", "asset-analysis", "gltf", "glb", "obj", "performance", "optimization"],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {

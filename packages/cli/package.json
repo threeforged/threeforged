@@ -2,8 +2,16 @@
   "name": "@threeforged/cli",
   "version": "0.1.0",
   "type": "module",
-  "description": "CLI for ThreeForged optimization tools",
+  "description": "Command-line interface for ThreeForged — optimize Three.js assets and scenes",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/threeforged/threeforged.git",
+    "directory": "packages/cli"
+  },
+  "homepage": "https://github.com/threeforged/threeforged/tree/main/packages/cli#readme",
+  "bugs": "https://github.com/threeforged/threeforged/issues",
+  "keywords": ["threejs", "three.js", "3d", "optimization", "cli", "gltf", "glb", "performance"],
   "bin": {
     "threeforged": "./dist/index.js"
   },

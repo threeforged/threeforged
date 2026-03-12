@@ -2,8 +2,16 @@
   "name": "@threeforged/core",
   "version": "0.1.0",
   "type": "module",
-  "description": "Shared foundation for ThreeForged tools",
+  "description": "Shared foundation for ThreeForged tools — types, loaders, config, and utilities",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/threeforged/threeforged.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/threeforged/threeforged/tree/main/packages/core#readme",
+  "bugs": "https://github.com/threeforged/threeforged/issues",
+  "keywords": ["threejs", "three.js", "3d", "optimization", "gltf", "glb", "obj"],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {

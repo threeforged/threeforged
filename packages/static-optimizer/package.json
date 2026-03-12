@@ -2,8 +2,16 @@
   "name": "@threeforged/static-optimizer",
   "version": "0.1.0",
   "type": "module",
-  "description": "Static geometry optimization plugin for ThreeForged",
+  "description": "Optimize static geometry in Three.js scenes — merge non-moving meshes to reduce draw calls",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/threeforged/threeforged.git",
+    "directory": "packages/static-optimizer"
+  },
+  "homepage": "https://github.com/threeforged/threeforged/tree/main/packages/static-optimizer#readme",
+  "bugs": "https://github.com/threeforged/threeforged/issues",
+  "keywords": ["threejs", "three.js", "3d", "static-geometry", "mesh-merging", "batching", "optimization"],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {

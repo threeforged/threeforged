@@ -31,3 +31,10 @@ packages/core/tests/fixtures/*.glb
 
 # Build artifacts
 *.tgz
+
+# Claude Code (local AI assistant config)
+.claude/
+CLAUDE.md
+
+# Internal planning docs (not part of the published project)
+docs/

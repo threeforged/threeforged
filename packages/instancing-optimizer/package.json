@@ -2,8 +2,16 @@
   "name": "@threeforged/instancing-optimizer",
   "version": "0.1.0",
   "type": "module",
-  "description": "Instancing optimization plugin for ThreeForged",
+  "description": "Optimize Three.js scenes by converting repeated meshes to instanced rendering",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/threeforged/threeforged.git",
+    "directory": "packages/instancing-optimizer"
+  },
+  "homepage": "https://github.com/threeforged/threeforged/tree/main/packages/instancing-optimizer#readme",
+  "bugs": "https://github.com/threeforged/threeforged/issues",
+  "keywords": ["threejs", "three.js", "3d", "instancing", "instancedmesh", "optimization", "draw-calls"],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
