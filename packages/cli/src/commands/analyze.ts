@@ -1,5 +1,5 @@
 import { writeFile } from 'node:fs/promises';
-import { resolve, relative } from 'node:path';
+import { resolve, relative, isAbsolute } from 'node:path';
 import type { Command } from 'commander';
 import { getLogger } from '@threeforged/core';
 import { formatAssetReport } from '../output/formatter.js';
@@ -19,8 +19,8 @@ function validateOutputPath(outputPath: string): string {
   const cwd = process.cwd();
   const rel = relative(cwd, resolved);
 
-  // If the relative path starts with ".." or is absolute, it's outside CWD
-  if (rel.startsWith('..') || resolve(rel) === resolved) {
+  // If relative path starts with ".." it's above CWD; if it's absolute, it's on a different drive (Windows)
+  if (rel.startsWith('..') || isAbsolute(rel)) {
     throw new Error(
       `Output path "${outputPath}" resolves outside the current directory. ` +
         `For safety, output files must be written within the working directory.`,
