@@ -5,7 +5,14 @@ Audit Three.js scene performance against platform-specific budgets. Analyzes dra
 ## Installation
 
 ```bash
-pnpm add @threeforged/performance-auditor
+# 1. Install the ThreeForged CLI (one-time setup)
+npm install -g @threeforged/cli
+
+# 2. Install the performance auditor plugin in your project
+npm install --save-dev @threeforged/performance-auditor
+
+# 3. Audit your assets
+threeforged audit ./models/
 ```
 
 ## CLI Usage
