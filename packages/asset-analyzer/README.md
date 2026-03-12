@@ -5,14 +5,14 @@ Analyze 3D assets for performance issues. Scans GLB, GLTF, and OBJ files and rep
 ## Installation
 
 ```bash
-pnpm add @threeforged/asset-analyzer
-```
+# 1. Install the ThreeForged CLI (one-time setup)
+npm install -g @threeforged/cli
 
-Use with the CLI:
+# 2. Install the asset analyzer plugin in your project
+npm install --save-dev @threeforged/asset-analyzer
 
-```bash
-pnpm add -g @threeforged/cli
-threeforged analyze <path>
+# 3. Analyze your assets
+threeforged analyze ./models/
 ```
 
 ## CLI Usage

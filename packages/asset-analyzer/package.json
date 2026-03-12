@@ -1,6 +1,6 @@
 {
   "name": "@threeforged/asset-analyzer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Analyze 3D assets for performance issues — high poly counts, duplicate materials, large textures, and more",
   "license": "MIT",
