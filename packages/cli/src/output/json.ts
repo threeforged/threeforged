@@ -1,5 +1,3 @@
-import type { AssetReport } from '@threeforged/core';
-
-export function formatJson(report: AssetReport): string {
+export function formatJson(report: unknown): string {
   return JSON.stringify(report, null, 2);
 }
