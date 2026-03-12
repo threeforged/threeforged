@@ -76,7 +76,7 @@ packages/core/
 
 **31 tests passing.**
 
-### Step 3: @threeforged/cli Package — DONE (published v0.1.0)
+### Step 3: @threeforged/cli Package — DONE (published v0.1.1)
 
 `packages/cli/` — command orchestration layer.
 
@@ -97,7 +97,8 @@ packages/cli/
       index.ts          — registerBuiltinCommands() barrel
       analyze.ts        — `threeforged analyze <path>` with --output flag, ANSI stripping for
                           file export, output path validation (must stay within CWD)
-      audit.ts          — placeholder for @threeforged/performance-auditor
+      audit.ts          — `threeforged audit <path>` with --profile and --output flags,
+                          dynamic import of @threeforged/performance-auditor
       lod.ts            — placeholder for @threeforged/lod-generator
       instancing.ts     — placeholder for @threeforged/instancing-optimizer
       static.ts         — placeholder for @threeforged/static-optimizer
@@ -106,6 +107,7 @@ packages/cli/
                           isValidPlugin() type guard, only loads official plugins
     output/
       formatter.ts      — formatAssetReport() with cli-table3, word wrapping, fixed col widths
+      audit-formatter.ts — formatAuditReport() with score display, profile indicator, VRAM breakdown
       json.ts           — formatJson() wrapper
   tests/
     cli.test.ts
@@ -155,7 +157,6 @@ packages/asset-analyzer/
 ### Step 5: Placeholder Packages — DONE
 
 Created minimal shells (package.json + tsconfig.json + tsup.config.ts + src/index.ts + README.md) for:
-- `packages/performance-auditor/` — @threeforged/performance-auditor
 - `packages/lod-generator/` — @threeforged/lod-generator
 - `packages/instancing-optimizer/` — @threeforged/instancing-optimizer
 - `packages/static-optimizer/` — @threeforged/static-optimizer
@@ -166,47 +167,102 @@ Each has `@threeforged/core` as workspace dependency, npm metadata (repository, 
 
 - **File size limit** — 512 MB cap in `loader/index.ts` before loading any file
 - **Image header bounds checking** — PNG requires 24+ bytes, JPEG validates offsets and segment lengths
-- **Output path restriction** — `--output` flag validates path stays within CWD via `path.relative()`
+- **Output path restriction** — `--output` flag validates path stays within CWD via `path.isAbsolute()` (fixed Windows bug where `resolve(rel) === resolved` false-positived for files in CWD)
 - **Plugin allowlist** — `discovery.ts` only auto-discovers known official plugins from `KNOWN_PLUGINS` set
 - **Plugin validation** — `isValidPlugin()` type guard checks structure before calling `registerCLI()`
+- **Performance auditor input validation** — all config thresholds validated as finite positive numbers, maxFiles capped at 10,000
+- **Safe math** — division-by-zero guards, NaN/Infinity checks, negative clamping in VRAM and geometry rules
+- **Resource limits** — maxFiles cap (default 500) prevents DoS via huge directories
+- **Bounds on output** — instancing groups capped to 10, entries per group to 5
+- **Path sanitization** — audit report relativizes all file paths (no absolute path leaks)
 
 ### Step 7: Publishing & GitHub — DONE
 
 - **npm org** `@threeforged` created and controlled
 - **Published packages:**
   - `@threeforged/core@0.1.0`
-  - `@threeforged/cli@0.1.0`
+  - `@threeforged/cli@0.1.1` (audit command + validateOutputPath bugfix)
   - `@threeforged/asset-analyzer@0.1.1`
+  - `@threeforged/performance-auditor@0.1.1`
 - **All packages have:** repository, homepage, bugs, keywords fields for npm display
 - **GitHub repo:** cleaned of internal files (.claude/, CLAUDE.md, docs/), root README added
-- **Verified end-to-end:** global CLI install → plugin install in separate project → `threeforged analyze` works
+- **Verified end-to-end:** global CLI install → plugin install in separate project → `threeforged analyze` and `threeforged audit` work
+- **Security audit passed:** no secrets, no private tokens, no hardcoded credentials, no internal URLs, clean .npmrc
+
+### Step 8: @threeforged/performance-auditor Package — DONE (published v0.1.1)
+
+`packages/performance-auditor/` — scene performance auditing plugin.
+
+```
+packages/performance-auditor/
+  package.json          — deps: @threeforged/core (workspace:*)
+  tsconfig.json
+  tsup.config.ts
+  README.md             — 3-step install instructions, profiles table, config docs
+  src/
+    index.ts            — exports auditPerformance(), threeforgedPlugin, config utils, re-exports types
+    types.ts            — PerformanceProfile, PerformanceAuditorConfig, PerformanceAuditReport
+    config.ts           — DEFAULT_AUDITOR_CONFIG with platform budgets, validateConfig() with
+                          finite positive checks, loadAuditorConfig() deep-merges with core config
+    auditor.ts          — resolve path, findAssetFiles(), enforce maxFiles limit, loadDocument(),
+                          runAllRules(), buildAuditReport()
+    plugin.ts           — threeforgedPlugin export for CLI auto-discovery
+    rules/
+      index.ts          — runAllRules() orchestrator returning warnings + score + grade
+      draw-calls.ts     — per-profile threshold check with lower-tier info warnings
+      triangle-budget.ts — per-profile triangle budget at 80%/100%
+      vram-usage.ts     — texture + geometry VRAM estimation (32 bytes/vertex) with NaN/negative guards
+      material-count.ts — count thresholds + duplicate detection via property hashing
+      geometry-complexity.ts — dense tri/vert ratio, unindexed, vertex-heavy checks, div-by-zero guard
+      instancing-opportunities.ts — cross-document duplicate geometry, capped output (10 groups, 5 entries)
+      performance-score.ts — weighted 0-100 composite (draw calls 25%, triangles 25%, VRAM 20%,
+                             materials 15%, unindexed ratio 15%), letter grades A-F
+    report/
+      builder.ts        — metrics with geometry VRAM, path sanitization via relative()
+  tests/
+    auditor.test.ts     — integration test with fixture GLB files
+    config.test.ts      — valid config, negative/NaN/Infinity/zero, invalid profile, maxFiles cap
+    report/
+      builder.test.ts   — metrics computation, path relativization, timestamp
+    rules/
+      draw-calls.test.ts
+      triangle-budget.test.ts
+      vram-usage.test.ts
+      material-count.test.ts
+      geometry-complexity.test.ts
+      instancing-opportunities.test.ts
+      performance-score.test.ts
+```
+
+**58 tests passing.**
+
+Performance profiles:
+
+| Profile | Draw Calls | Triangles | VRAM |
+|---|---|---|---|
+| mobile | 100 | 500K | 128 MB |
+| desktop | 300 | 2M | 512 MB |
+| high-end | 1,000 | 10M | 2,048 MB |
+
+CLI usage: `threeforged audit <path> [--profile mobile|desktop|high-end] [--json] [-o file]`
 
 ---
 
 ## Current State
 
-- **44 total tests passing** across core (31), asset-analyzer (9), cli (4)
+- **102 total tests passing** across core (31), performance-auditor (58), asset-analyzer (9), cli (4)
 - **`pnpm build`** — all 7 packages build successfully
 - **`pnpm test`** — all tests pass
+- **`pnpm lint`** — passes clean
 - **CLI installed globally** and working from any directory
-- **npm packages live** and installable by anyone
+- **npm packages live:** core@0.1.0, cli@0.1.1, asset-analyzer@0.1.1, performance-auditor@0.1.1
+- **Tested end-to-end** in separate project with real GLB models on all three profiles
 
 ---
 
 ## Remaining Plugins to Build
 
-These are placeholder packages with planned features. Each needs full implementation following the asset-analyzer pattern (analyzer engine + rules + CLI command + tests).
-
-### @threeforged/performance-auditor
-Spec: `docs/threeforged-performance-auditor.md` (local only, gitignored)
-
-Planned features:
-- Draw call analysis and batching recommendations
-- Shader complexity scoring
-- Overdraw detection
-- Material and geometry deduplication suggestions
-- Scene graph depth analysis
-- Performance budget enforcement
+These are placeholder packages with planned features. Each needs full implementation following the asset-analyzer/performance-auditor pattern (engine + rules + CLI command + tests).
 
 ### @threeforged/lod-generator
 Spec: `docs/threeforged-lod-generator.md` (local only, gitignored)
@@ -260,3 +316,6 @@ Planned features:
 - **npm scoped packages:** Require `--access public` on first publish (default to private)
 - **npm propagation:** Newly published scoped packages can take 5-15 minutes to appear in the registry CLI
 - **ThreeForgedPlugin.registerCLI:** Takes `unknown` (not `Command`) to avoid commander as a core dependency
+- **validateOutputPath on Windows:** `resolve(rel) === resolved` is always true for files in CWD on Windows — use `path.isAbsolute(rel)` instead to catch cross-drive paths
+- **Global link stale binaries:** If `threeforged` was previously installed via npm/nvm, the old binary at `nvm4w/nodejs/` takes PATH priority over pnpm's global link — must remove stale binary manually
+- **Performance auditor config pattern:** Plugin-specific config lives under a sub-key (e.g., `performanceAuditor`) in `threeforged.config.js`, deep-merged with defaults — cast through `unknown` to access sub-keys from `ThreeForgedConfig`
