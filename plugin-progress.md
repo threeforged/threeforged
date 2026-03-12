@@ -100,7 +100,8 @@ packages/cli/
       audit.ts          — `threeforged audit <path>` with --profile and --output flags,
                           dynamic import of @threeforged/performance-auditor
       lod.ts            — placeholder for @threeforged/lod-generator
-      instancing.ts     — placeholder for @threeforged/instancing-optimizer
+      instancing.ts     — `threeforged instancing <path>` with --output flag,
+                          dynamic import of @threeforged/instancing-optimizer
       static.ts         — placeholder for @threeforged/static-optimizer
     plugins/
       discovery.ts      — scans node_modules/@threeforged/*, KNOWN_PLUGINS allowlist (security),
@@ -108,6 +109,7 @@ packages/cli/
     output/
       formatter.ts      — formatAssetReport() with cli-table3, word wrapping, fixed col widths
       audit-formatter.ts — formatAuditReport() with score display, profile indicator, VRAM breakdown
+      instancing-formatter.ts — formatInstancingReport() with candidate table, confidence colors, details
       json.ts           — formatJson() wrapper
   tests/
     cli.test.ts
@@ -173,17 +175,19 @@ Each has `@threeforged/core` as workspace dependency, npm metadata (repository, 
 - **Performance auditor input validation** — all config thresholds validated as finite positive numbers, maxFiles capped at 10,000
 - **Safe math** — division-by-zero guards, NaN/Infinity checks, negative clamping in VRAM and geometry rules
 - **Resource limits** — maxFiles cap (default 500) prevents DoS via huge directories
-- **Bounds on output** — instancing groups capped to 10, entries per group to 5
-- **Path sanitization** — audit report relativizes all file paths (no absolute path leaks)
+- **Bounds on output** — instancing groups capped to 10, entries per group to 5 (performance-auditor); 20 groups, 8 entries (instancing-optimizer)
+- **Path sanitization** — audit and instancing reports relativize all file paths (no absolute path leaks)
+- **Instancing optimizer input validation** — all config thresholds validated as finite positive, materialHeterogeneityThreshold bounded to (0,1], maxFiles capped at 10,000
 
 ### Step 7: Publishing & GitHub — DONE
 
 - **npm org** `@threeforged` created and controlled
 - **Published packages:**
   - `@threeforged/core@0.1.0`
-  - `@threeforged/cli@0.1.1` (audit command + validateOutputPath bugfix)
+  - `@threeforged/cli@0.1.2` (instancing command + formatter)
   - `@threeforged/asset-analyzer@0.1.1`
   - `@threeforged/performance-auditor@0.1.1`
+  - `@threeforged/instancing-optimizer@0.1.0`
 - **All packages have:** repository, homepage, bugs, keywords fields for npm display
 - **GitHub repo:** cleaned of internal files (.claude/, CLAUDE.md, docs/), root README added
 - **Verified end-to-end:** global CLI install → plugin install in separate project → `threeforged analyze` and `threeforged audit` work
@@ -246,23 +250,81 @@ Performance profiles:
 
 CLI usage: `threeforged audit <path> [--profile mobile|desktop|high-end] [--json] [-o file]`
 
+### Step 9: @threeforged/instancing-optimizer Package — DONE (published v0.1.0)
+
+`packages/instancing-optimizer/` — instancing opportunity detection plugin.
+
+```
+packages/instancing-optimizer/
+  package.json          — deps: @threeforged/core (workspace:*)
+  tsconfig.json
+  tsup.config.ts
+  README.md             — 3-step install instructions, confidence levels table, config docs
+  src/
+    index.ts            — exports detectInstancingCandidates(), threeforgedPlugin, config utils, re-exports types
+    types.ts            — InstancingConfidence, InstancingCandidate, InstancingMeshEntry,
+                          InstancingMetrics (extends PerformanceMetrics), InstancingReport,
+                          InstancingOptimizerConfig
+    config.ts           — DEFAULT_OPTIMIZER_CONFIG, validateConfig() with finite positive checks +
+                          materialHeterogeneityThreshold (0,1] bounds, loadOptimizerConfig()
+    optimizer.ts        — resolve path, findAssetFiles(), enforce maxFiles limit, loadDocument(),
+                          runAllRules(), buildInstancingReport()
+    plugin.ts           — threeforgedPlugin export for CLI auto-discovery
+    rules/
+      index.ts          — runAllRules() orchestrator returning candidates + warnings (sequential pipeline)
+      geometry-grouping.ts — groups meshes by vertices:triangles:indexed signature, filters by
+                             minTriangles, sorts by impact (instance count then vertex count),
+                             caps at maxGroups, limits entries per group
+      animation-exclusion.ts — channels-to-meshes ratio heuristic: >=1 → low confidence,
+                               >0 → medium confidence, does not upgrade from low
+      material-compatibility.ts — material-to-mesh ratio vs threshold, mesh name prefix matching
+                                  across _, -, . separators, preserves high confidence with prefix match
+      savings-estimation.ts — drawCallsSaved = instanceCount-1, vramSavedBytes = (N-1)*vertices*32,
+                              severity: >=50% error, >=20% warn, >=5% info
+      cross-file-detection.ts — flags candidates spanning multiple source files
+    report/
+      builder.ts        — metrics with instancing-specific fields (candidateGroups, totalDrawCallsSaved,
+                          totalVramSavedBytes, drawCallReductionPercent, geometryReuseRatio,
+                          uniqueGeometryCount, hasAnimations), path sanitization via relative()
+  tests/
+    config.test.ts      — valid config, custom values, negative/NaN/Infinity/zero, maxFiles cap,
+                          materialHeterogeneityThreshold bounds, immutability (12 tests)
+    optimizer.test.ts   — integration test with fixture GLB, unsupported file, report structure (4 tests)
+    report/
+      builder.test.ts   — base metrics, instancing metrics, draw call reduction, timestamp,
+                          path relativization, empty inputs, geometry reuse ratio (7 tests)
+    rules/
+      geometry-grouping.test.ts — grouping, minCount, minTriangles, indexed vs unindexed,
+                                  sorting, maxGroups cap, maxEntries cap, cross-document (8 tests)
+      animation-exclusion.test.ts — no animations, high ratio, partial ratio, no upgrade, reasons (5 tests)
+      material-compatibility.test.ts — low ratio, high ratio no prefix, prefix match, dash prefix,
+                                       empty docs (5 tests)
+      savings-estimation.test.ts — draw calls saved, triangles=0, VRAM math, error/warn/info/none
+                                   severity, zero draw calls (8 tests)
+      cross-file-detection.test.ts — single-file, multi-file, per-candidate warnings, file names (4 tests)
+```
+
+**53 tests passing.**
+
+CLI usage: `threeforged instancing <path> [--json] [-o file]`
+
 ---
 
 ## Current State
 
-- **102 total tests passing** across core (31), performance-auditor (58), asset-analyzer (9), cli (4)
+- **155 total tests passing** across core (31), performance-auditor (58), instancing-optimizer (53), asset-analyzer (9), cli (4)
 - **`pnpm build`** — all 7 packages build successfully
 - **`pnpm test`** — all tests pass
 - **`pnpm lint`** — passes clean
 - **CLI installed globally** and working from any directory
-- **npm packages live:** core@0.1.0, cli@0.1.1, asset-analyzer@0.1.1, performance-auditor@0.1.1
-- **Tested end-to-end** in separate project with real GLB models on all three profiles
+- **npm packages live:** core@0.1.0, cli@0.1.2, asset-analyzer@0.1.1, performance-auditor@0.1.1, instancing-optimizer@0.1.0
+- **Tested end-to-end** in separate project with real GLB models (animated archer model)
 
 ---
 
 ## Remaining Plugins to Build
 
-These are placeholder packages with planned features. Each needs full implementation following the asset-analyzer/performance-auditor pattern (engine + rules + CLI command + tests).
+These are placeholder packages with planned features. Each needs full implementation following the established pattern (engine + rules + CLI command + tests).
 
 ### @threeforged/lod-generator
 Spec: `docs/threeforged-lod-generator.md` (local only, gitignored)
@@ -273,16 +335,6 @@ Planned features:
 - Triangle budget targeting
 - UV and attribute preservation
 - Batch processing for entire asset directories
-
-### @threeforged/instancing-optimizer
-Spec: `docs/threeforged-instancing-optimizer.md` (local only, gitignored)
-
-Planned features:
-- Automatic detection of duplicate geometry
-- InstancedMesh conversion recommendations
-- Transform matrix extraction for instances
-- Material compatibility analysis
-- Draw call reduction estimates
 
 ### @threeforged/static-optimizer
 Spec: `docs/threeforged-static-optimizer.md` (local only, gitignored)
@@ -319,3 +371,6 @@ Planned features:
 - **validateOutputPath on Windows:** `resolve(rel) === resolved` is always true for files in CWD on Windows — use `path.isAbsolute(rel)` instead to catch cross-drive paths
 - **Global link stale binaries:** If `threeforged` was previously installed via npm/nvm, the old binary at `nvm4w/nodejs/` takes PATH priority over pnpm's global link — must remove stale binary manually
 - **Performance auditor config pattern:** Plugin-specific config lives under a sub-key (e.g., `performanceAuditor`) in `threeforged.config.js`, deep-merged with defaults — cast through `unknown` to access sub-keys from `ThreeForgedConfig`
+- **PowerShell vs bash:** `&&` chaining doesn't work in older PowerShell — run commands separately or use bash
+- **pnpm vs npm for pack:** `pnpm npm pack --dry-run` doesn't work — use `npm pack --dry-run` directly
+- **Plugin naming:** "optimizer" implies file modification but all 3 current plugins are read-only analyzers — naming is fine for now, can add `--apply` mode later to make the name fully accurate
