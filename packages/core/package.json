@@ -1,0 +1,30 @@
+{
+  "name": "@threeforged/core",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Shared foundation for ThreeForged tools",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@gltf-transform/core": "^4.0.0",
+    "globby": "^14.0.0",
+    "obj-file-parser": "^0.6.0",
+    "picocolors": "^1.0.0"
+  }
+}

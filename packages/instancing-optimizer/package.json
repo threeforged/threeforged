@@ -1,0 +1,26 @@
+{
+  "name": "@threeforged/instancing-optimizer",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Instancing optimization plugin for ThreeForged",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "echo 'No tests yet'",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@threeforged/core": "workspace:*"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "name": "@threeforged/cli",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "CLI for ThreeForged optimization tools",
+  "license": "MIT",
+  "bin": {
+    "threeforged": "./dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@threeforged/core": "workspace:*",
+    "cli-table3": "^0.6.0",
+    "commander": "^12.0.0",
+    "picocolors": "^1.0.0"
+  },
+  "optionalDependencies": {
+    "@threeforged/asset-analyzer": "workspace:*",
+    "@threeforged/performance-auditor": "workspace:*",
+    "@threeforged/lod-generator": "workspace:*",
+    "@threeforged/instancing-optimizer": "workspace:*",
+    "@threeforged/static-optimizer": "workspace:*"
+  }
+}
