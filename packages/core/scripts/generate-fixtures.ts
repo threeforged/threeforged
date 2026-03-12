@@ -68,17 +68,47 @@ async function generateHighPolyMesh(): Promise<void> {
   const doc = new Document();
   const buffer = doc.createBuffer();
 
-  // Create a mesh with >100k triangles
-  const triCount = 110_000;
-  const vertCount = triCount * 3;
-  const positions = new Float32Array(vertCount * 3);
-  const indexArray = new Uint32Array(vertCount);
+  // Create a UV sphere with proper shared-vertex topology.
+  // This gives meshoptimizer real mesh connectivity to simplify.
+  const radius = 5;
+  const rings = 300;   // horizontal slices
+  const segments = 370; // vertical slices
+  // Total triangles: ~221,400 (segments * 2 * (rings-1))
 
-  for (let i = 0; i < vertCount; i++) {
-    positions[i * 3] = Math.random() * 10;
-    positions[i * 3 + 1] = Math.random() * 10;
-    positions[i * 3 + 2] = Math.random() * 10;
-    indexArray[i] = i;
+  const vertCount = (rings + 1) * (segments + 1);
+  const positions = new Float32Array(vertCount * 3);
+
+  // Generate vertices on the sphere surface
+  for (let ring = 0; ring <= rings; ring++) {
+    const phi = (ring / rings) * Math.PI; // 0 to PI (top to bottom)
+    const sinPhi = Math.sin(phi);
+    const cosPhi = Math.cos(phi);
+
+    for (let seg = 0; seg <= segments; seg++) {
+      const theta = (seg / segments) * 2 * Math.PI; // 0 to 2PI
+      const idx = ring * (segments + 1) + seg;
+      positions[idx * 3] = radius * sinPhi * Math.cos(theta);
+      positions[idx * 3 + 1] = radius * cosPhi;
+      positions[idx * 3 + 2] = radius * sinPhi * Math.sin(theta);
+    }
+  }
+
+  // Generate triangle indices connecting adjacent rings
+  const triCount = segments * 2 * rings;
+  const indexArray = new Uint32Array(triCount * 3);
+  let idx = 0;
+  for (let ring = 0; ring < rings; ring++) {
+    for (let seg = 0; seg < segments; seg++) {
+      const a = ring * (segments + 1) + seg;
+      const b = a + segments + 1;
+      // Two triangles per quad
+      indexArray[idx++] = a;
+      indexArray[idx++] = b;
+      indexArray[idx++] = a + 1;
+      indexArray[idx++] = b;
+      indexArray[idx++] = b + 1;
+      indexArray[idx++] = a + 1;
+    }
   }
 
   const position = doc.createAccessor()

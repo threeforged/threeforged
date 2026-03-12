@@ -310,31 +310,74 @@ CLI usage: `threeforged instancing <path> [--json] [-o file]`
 
 ---
 
+### Step 10: @threeforged/lod-generator Package — DONE
+
+`packages/lod-generator/` — LOD generation plugin (first file-modifying plugin).
+
+```
+packages/lod-generator/
+  package.json          — deps: @threeforged/core (workspace:*), @gltf-transform/core,
+                          @gltf-transform/functions, meshoptimizer
+  tsconfig.json
+  tsup.config.ts
+  README.md             — 3-step install, safety docs, Three.js LOD usage example
+  src/
+    index.ts            — exports generateLOD(), threeforgedPlugin, config utils, re-exports types
+    types.ts            — LODMeshLevel, LODLevel, LODFileResult, LODMetrics (extends PerformanceMetrics),
+                          LODReport, LODGeneratorConfig
+    config.ts           — DEFAULT_LOD_CONFIG, validateConfig() with strict validation
+                          (levels 1-10, ratio (0,1), integer checks), loadLODConfig()
+    generator.ts        — resolve path, findAssetFiles(), filter to GLB/GLTF only,
+                          enforce maxFiles limit, processFile() per file, buildLODReport()
+    plugin.ts           — threeforgedPlugin export for CLI auto-discovery
+    simplify.ts         — readDocument(), writeDocument(), countGeometry(), simplifyDocument()
+                          using @gltf-transform/functions weld() + simplify() with meshoptimizer WASM
+    rules/
+      index.ts          — runAllRules() orchestrator returning warnings
+      animation-check.ts — detects animations and morph targets, warns about potential quality loss
+      quality-check.ts  — flags meshes already at or below minTriangles threshold
+    report/
+      builder.ts        — metrics with LOD-specific fields (lodLevelsGenerated, totalFilesProcessed,
+                          totalOutputFiles, maxReductionPercent, hasAnimations), path sanitization
+  tests/
+    config.test.ts      — valid config, custom values, non-integer/negative/NaN/Infinity/zero,
+                          ratio bounds, levels cap, maxFiles cap, immutability (19 tests)
+    generator.test.ts   — integration test with fixture GLB, triangle reduction, analyze mode,
+                          OBJ skip, config in report, metrics, mesh details (9 tests)
+    report/
+      builder.test.ts   — report structure, metrics computation, multi-file, path sanitization,
+                          timestamp, empty inputs, output files, warnings, NaN guard (9 tests)
+    rules/
+      animation-check.test.ts — no animations, animated docs, morph targets, file name (4 tests)
+      quality-check.test.ts   — above/at/below threshold, boundary, file name, unnamed mesh (6 tests)
+```
+
+**47 tests passing.**
+
+Safety features (first file-modifying plugin):
+- **Analyze mode by default** — no files written unless `--write` is explicitly passed
+- **No overwrite** — skips existing output files unless `--force` is used
+- **Never modifies originals** — generates new `_lod{N}` suffixed files only
+- **GLB/GLTF only** — OBJ files gracefully skipped (no write format)
+- **Output path validation** — output directory must exist, path stays within CWD
+- **Config validation** — ratio bounded to (0,1), levels capped at 10, maxFiles at 10,000
+
+CLI usage: `threeforged lod <path> [--levels N] [--ratio N] [--write] [--force] [--output-dir dir] [--json] [-o file]`
+
+---
+
 ## Current State
 
-- **155 total tests passing** across core (31), performance-auditor (58), instancing-optimizer (53), asset-analyzer (9), cli (4)
-- **`pnpm build`** — all 7 packages build successfully
+- **202 total tests passing** across core (31), performance-auditor (58), instancing-optimizer (53), lod-generator (47), asset-analyzer (9), cli (4)
+- **`pnpm build`** — all 8 packages build successfully
 - **`pnpm test`** — all tests pass
 - **`pnpm lint`** — passes clean
 - **CLI installed globally** and working from any directory
 - **npm packages live:** core@0.1.0, cli@0.1.2, asset-analyzer@0.1.1, performance-auditor@0.1.1, instancing-optimizer@0.1.0
-- **Tested end-to-end** in separate project with real GLB models (animated archer model)
 
 ---
 
 ## Remaining Plugins to Build
-
-These are placeholder packages with planned features. Each needs full implementation following the established pattern (engine + rules + CLI command + tests).
-
-### @threeforged/lod-generator
-Spec: `docs/threeforged-lod-generator.md` (local only, gitignored)
-
-Planned features:
-- Automatic mesh simplification at configurable quality levels
-- LOD group generation for Three.js LOD objects
-- Triangle budget targeting
-- UV and attribute preservation
-- Batch processing for entire asset directories
 
 ### @threeforged/static-optimizer
 Spec: `docs/threeforged-static-optimizer.md` (local only, gitignored)
