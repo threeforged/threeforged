@@ -10,4 +10,16 @@ export default defineConfig({
   banner: {
     js: '#!/usr/bin/env node',
   },
+  external: [
+    '@threeforged/core',
+    '@threeforged/asset-analyzer',
+    '@threeforged/performance-auditor',
+    '@threeforged/lod-generator',
+    '@threeforged/instancing-optimizer',
+    '@threeforged/static-optimizer',
+    '@gltf-transform/core',
+    '@gltf-transform/functions',
+    'sharp',
+    'meshoptimizer',
+  ],
 });

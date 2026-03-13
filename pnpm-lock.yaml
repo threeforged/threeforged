@@ -117,6 +117,12 @@ importers:
 
   packages/static-optimizer:
     dependencies:
+      '@gltf-transform/core':
+        specifier: ^4.0.0
+        version: 4.3.0
+      '@gltf-transform/functions':
+        specifier: ^4.0.0
+        version: 4.3.0
       '@threeforged/core':
         specifier: workspace:*
         version: link:../core

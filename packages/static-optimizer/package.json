@@ -1,6 +1,6 @@
 {
   "name": "@threeforged/static-optimizer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Optimize static geometry in Three.js scenes — merge non-moving meshes to reduce draw calls",
   "license": "MIT",
@@ -24,11 +24,14 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "test": "echo 'No tests yet'",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "clean": "rm -rf dist",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@threeforged/core": "workspace:*"
+    "@threeforged/core": "workspace:*",
+    "@gltf-transform/core": "^4.0.0",
+    "@gltf-transform/functions": "^4.0.0"
   }
 }

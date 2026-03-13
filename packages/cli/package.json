@@ -1,6 +1,6 @@
 {
   "name": "@threeforged/cli",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "type": "module",
   "description": "Command-line interface for ThreeForged — optimize Three.js assets and scenes",
   "license": "MIT",

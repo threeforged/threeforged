@@ -364,30 +364,76 @@ Safety features (first file-modifying plugin):
 
 CLI usage: `threeforged lod <path> [--levels N] [--ratio N] [--write] [--force] [--output-dir dir] [--json] [-o file]`
 
+### Step 11: @threeforged/static-optimizer Package — DONE
+
+`packages/static-optimizer/` — static mesh merge opportunity detection plugin.
+
+```
+packages/static-optimizer/
+  package.json          — deps: @threeforged/core (workspace:*)
+  tsconfig.json
+  tsup.config.ts
+  README.md             — 3-step install instructions, rule table, config docs
+  src/
+    index.ts            — exports detectStaticMergeCandidates(), threeforgedPlugin, config utils, re-exports types
+    types.ts            — StaticMeshEntry, StaticMergeGroup, StaticMetrics (extends PerformanceMetrics),
+                          StaticReport, StaticOptimizerConfig
+    config.ts           — DEFAULT_STATIC_CONFIG, validateConfig() with finite positive checks,
+                          loadStaticConfig() deep-merges with core config
+    optimizer.ts        — resolve path, findAssetFiles(), enforce maxFiles limit, loadDocument(),
+                          runAllRules(), buildStaticReport()
+    plugin.ts           — threeforgedPlugin export for CLI auto-discovery
+    rules/
+      index.ts          — runAllRules() orchestrator returning groups + warnings + animatedMeshCount
+      material-grouping.ts — hashes material properties (type, baseColor, metallic, roughness, alpha,
+                             textures), groups meshes by material hash, sorts by impact, caps at maxGroups
+      animation-exclusion.ts — channels-to-meshes ratio heuristic, warns groups about animated meshes,
+                               returns estimated animated mesh count
+      attribute-compatibility.ts — flags groups mixing indexed and non-indexed geometry
+      savings-estimation.ts — drawCallsSaved = meshCount-1, severity: >=50% error, >=20% warn, >=5% info
+      vertex-budget.ts  — flags groups where totalVertices > maxMergedVertices (default 65535, 16-bit index limit)
+    report/
+      builder.ts        — metrics with static-specific fields (mergeGroups, totalMergeableMeshes,
+                          totalDrawCallsSaved, drawCallReductionPercent, totalMergedVertices,
+                          totalMergedTriangles, staticMeshCount, animatedMeshCount, hasAnimations),
+                          path sanitization via relative()
+  tests/
+    config.test.ts      — valid config, custom values, negative/NaN/Infinity/zero, maxFiles cap,
+                          immutability (12 tests)
+    optimizer.test.ts   — integration test with fixture GLB, unsupported file, report structure (4 tests)
+    report/
+      builder.test.ts   — base metrics, GPU memory, static metrics, draw call reduction, zero draw calls,
+                          animation counts, path sanitization, empty inputs, multi-doc (13 tests)
+    rules/
+      material-grouping.test.ts — grouping, different materials, minMeshesPerGroup, maxGroups cap,
+                                   maxEntries cap, sorting, source files, vertex/tri totals,
+                                   texture differentiation, empty docs (10 tests)
+      animation-exclusion.test.ts — no animations, high ratio, partial ratio, estimated count,
+                                     all groups warned (5 tests)
+      attribute-compatibility.test.ts — all indexed, all non-indexed, mixed, independent groups,
+                                         empty (5 tests)
+      savings-estimation.test.ts — draw calls saved, VRAM overhead, error/warn/info/none severity,
+                                    zero draw calls, multiple groups (8 tests)
+      vertex-budget.test.ts — within limit, exceeds limit, custom limit, at limit boundary,
+                               group warnings, independent checks, empty (7 tests)
+```
+
+**64 tests passing.**
+
+CLI usage: `threeforged static <path> [--json] [-o file]`
+
 ---
 
 ## Current State
 
-- **202 total tests passing** across core (31), performance-auditor (58), instancing-optimizer (53), lod-generator (47), asset-analyzer (9), cli (4)
+- **266 total tests passing** across core (31), performance-auditor (58), static-optimizer (64), lod-generator (60), instancing-optimizer (53), asset-analyzer (9), cli (4)
 - **`pnpm build`** — all 8 packages build successfully
 - **`pnpm test`** — all tests pass
 - **`pnpm lint`** — passes clean
+- **`pnpm typecheck`** — passes clean
 - **CLI installed globally** and working from any directory
 - **npm packages live:** core@0.1.0, cli@0.1.2, asset-analyzer@0.1.1, performance-auditor@0.1.1, instancing-optimizer@0.1.0
-
----
-
-## Remaining Plugins to Build
-
-### @threeforged/static-optimizer
-Spec: `docs/threeforged-static-optimizer.md` (local only, gitignored)
-
-Planned features:
-- Static mesh detection and merging
-- Geometry batching by material
-- Buffer geometry optimization
-- Vertex deduplication
-- Bounding volume generation
+- **All plugins implemented** — no remaining plugins to build
 
 ---
 
