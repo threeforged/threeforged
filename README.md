@@ -6,7 +6,7 @@ Modular CLI toolkit for optimizing Three.js assets and scenes. Analyze 3D files,
 
 ```bash
 # Install the CLI and all plugins globally
-npm install -g @threeforged/cli @threeforged/asset-analyzer @threeforged/performance-auditor @threeforged/instancing-optimizer @threeforged/lod-generator
+npm install -g @threeforged/cli @threeforged/asset-analyzer @threeforged/performance-auditor @threeforged/instancing-optimizer @threeforged/lod-generator @threeforged/static-optimizer
 
 # Analyze your 3D assets
 threeforged analyze ./models/
@@ -19,6 +19,9 @@ threeforged instancing ./models/
 
 # Check simplification potential
 threeforged lod ./models/
+
+# Merge static meshes to reduce draw calls
+threeforged static ./models/ --write
 ```
 
 Or use without installing globally:
@@ -37,7 +40,7 @@ npx @threeforged/cli analyze ./models/
 | [@threeforged/performance-auditor](packages/performance-auditor/) | Audit scenes against draw call, VRAM, and triangle budgets | Published |
 | [@threeforged/instancing-optimizer](packages/instancing-optimizer/) | Detect duplicate geometry and estimate instancing savings | Published |
 | [@threeforged/lod-generator](packages/lod-generator/) | Simplify meshes for level-of-detail rendering | Published |
-| @threeforged/static-optimizer | Static geometry merging and batching | Coming soon |
+| [@threeforged/static-optimizer](packages/static-optimizer/) | Merge static meshes to reduce draw calls | Published |
 
 ## How It Works
 
@@ -96,6 +99,21 @@ threeforged lod tree.glb --levels 3 --ratio 0.5 --write  # Generate 3 LOD levels
 
 **Safe by default:** analyze-only mode unless `--write` is passed. Never modifies original files. See the [LOD Generator README](packages/lod-generator/README.md) for Three.js integration patterns.
 
+### `threeforged static <path>`
+
+Detects static mesh merge opportunities and optionally merges them. Groups meshes by material, estimates draw call savings, and uses gltf-transform to merge static geometry.
+
+```bash
+threeforged static ./models/                       # Analyze merge candidates
+threeforged static scene.glb --write               # Merge and output scene_merged.glb
+threeforged static ./models/ --write --force        # Overwrite existing output files
+threeforged static scene.glb --write --output-dir out  # Write to out/ directory
+```
+
+**What it checks:** material grouping, animation exclusion, attribute compatibility, vertex budget limits, draw call savings estimation.
+
+**Safe by default:** analyze-only mode unless `--write` is passed. Never modifies original files. Only GLB/GLTF supported for merging (OBJ is analyze-only).
+
 ## Programmatic API
 
 Each plugin exports its core function for use in scripts and CI pipelines:
@@ -105,11 +123,13 @@ import { analyzeAssets } from '@threeforged/asset-analyzer';
 import { auditPerformance } from '@threeforged/performance-auditor';
 import { analyzeInstancing } from '@threeforged/instancing-optimizer';
 import { generateLOD } from '@threeforged/lod-generator';
+import { detectStaticMergeCandidates } from '@threeforged/static-optimizer';
 
 const analysis = await analyzeAssets('./models/');
 const audit = await auditPerformance('./models/');
 const instancing = await analyzeInstancing('./models/');
 const lod = await generateLOD('./models/', { target: 0.3 });
+const staticReport = await detectStaticMergeCandidates('./models/', { write: true });
 ```
 
 ## Configuration
