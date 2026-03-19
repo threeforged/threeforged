@@ -1,6 +1,6 @@
 {
   "name": "@threeforged/lod-generator",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Generate levels of detail for Three.js meshes — automatic mesh simplification for distance-based rendering",
   "license": "MIT",
@@ -30,7 +30,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@threeforged/core": "workspace:*",
+    "@threeforged/core": "^0.1.1",
     "@gltf-transform/core": "^4.0.0",
     "@gltf-transform/functions": "^4.0.0",
     "meshoptimizer": "^0.20.0"

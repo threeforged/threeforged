@@ -1,0 +1,109 @@
+Yep — that is the problem.
+
+This line is what breaks installs from npm:
+
+"@threeforged/core": "workspace:*"
+
+workspace:* is for local workspace development, not for a consumer installing your published package from the npm registry. npm’s workspaces docs describe workspaces as local packages managed from a single top-level project, and pnpm’s docs note that workspace: dependencies are rewritten on publish/pack when you publish through pnpm.
+
+What to change
+
+Change this:
+
+"dependencies": {
+  "@threeforged/core": "workspace:*",
+  "commander": "^12.0.0"
+}
+
+to something like:
+
+"dependencies": {
+  "@threeforged/core": "^0.1.1",
+  "commander": "^12.0.0"
+}
+
+Use the actual published version of @threeforged/core.
+
+Important question
+
+Is @threeforged/core already published to npm?
+
+Because if it is not published, then your asset analyzer package cannot be installed by outside users anyway. The dependency must exist on npm under a real version that consumers can download.
+
+Why this happened
+
+If you’re in a monorepo, workspace:* is fine inside the repo during development. But when publishing, the final published manifest needs normal semver dependency ranges for consumers. pnpm explicitly says it rewrites workspace: specs during pnpm pack / pnpm publish.
+
+That means one of these likely happened:
+
+you published with a flow that did not rewrite workspace:*
+
+or the package that reached npm still contained the raw workspace reference
+
+What to do next
+If you want the fastest fix
+
+Update package.json to use a real version:
+
+"@threeforged/core": "^0.1.1"
+
+Bump the plugin version:
+
+"version": "0.1.2"
+
+Rebuild and republish.
+
+Before publishing, verify the packed manifest
+
+Run this in the package folder:
+
+npm pack --dry-run
+
+or, if you use pnpm:
+
+pnpm pack
+
+pnpm documents that workspace: dependencies are replaced during pack/publish.
+
+Your corrected package.json should look like this
+{
+  "name": "@threeforged/asset-analyzer",
+  "version": "0.1.2",
+  "type": "module",
+  "description": "Analyze 3D assets for performance issues — high poly counts, duplicate materials, large textures, and more",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/threeforged/threeforged.git",
+    "directory": "packages/asset-analyzer"
+  },
+  "homepage": "https://github.com/threeforged/threeforged/tree/main/packages/asset-analyzer#readme",
+  "bugs": "https://github.com/threeforged/threeforged/issues",
+  "keywords": ["threejs", "three.js", "3d", "asset-analysis", "gltf", "glb", "obj", "performance", "optimization"],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@threeforged/core": "^0.1.1",
+    "commander": "^12.0.0"
+  }
+}
+One more thing
+
+This same issue is probably also in your CLI package if it depends on @threeforged/core or any sibling package using workspace:*.
+
+Paste your @threeforged/core package.json and your CLI package.json, and I’ll tell you exactly what versions/fields to change.

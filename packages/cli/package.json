@@ -1,6 +1,6 @@
 {
   "name": "@threeforged/cli",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "type": "module",
   "description": "Command-line interface for ThreeForged — optimize Three.js assets and scenes",
   "license": "MIT",
@@ -33,16 +33,16 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@threeforged/core": "workspace:*",
+    "@threeforged/core": "^0.1.1",
     "cli-table3": "^0.6.0",
     "commander": "^12.0.0",
     "picocolors": "^1.0.0"
   },
   "optionalDependencies": {
-    "@threeforged/asset-analyzer": "workspace:*",
-    "@threeforged/performance-auditor": "workspace:*",
-    "@threeforged/lod-generator": "workspace:*",
-    "@threeforged/instancing-optimizer": "workspace:*",
-    "@threeforged/static-optimizer": "workspace:*"
+    "@threeforged/asset-analyzer": "^0.1.2",
+    "@threeforged/performance-auditor": "^0.1.2",
+    "@threeforged/lod-generator": "^0.1.1",
+    "@threeforged/instancing-optimizer": "^0.1.1",
+    "@threeforged/static-optimizer": "^0.1.3"
   }
 }

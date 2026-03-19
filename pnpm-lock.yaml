@@ -36,8 +36,8 @@ importers:
   packages/asset-analyzer:
     dependencies:
       '@threeforged/core':
-        specifier: workspace:*
-        version: link:../core
+        specifier: ^0.1.1
+        version: 0.1.1
       commander:
         specifier: ^12.0.0
         version: 12.1.0
@@ -45,8 +45,8 @@ importers:
   packages/cli:
     dependencies:
       '@threeforged/core':
-        specifier: workspace:*
-        version: link:../core
+        specifier: ^0.1.1
+        version: 0.1.1
       cli-table3:
         specifier: ^0.6.0
         version: 0.6.5
@@ -56,22 +56,6 @@ importers:
       picocolors:
         specifier: ^1.0.0
         version: 1.1.1
-    optionalDependencies:
-      '@threeforged/asset-analyzer':
-        specifier: workspace:*
-        version: link:../asset-analyzer
-      '@threeforged/instancing-optimizer':
-        specifier: workspace:*
-        version: link:../instancing-optimizer
-      '@threeforged/lod-generator':
-        specifier: workspace:*
-        version: link:../lod-generator
-      '@threeforged/performance-auditor':
-        specifier: workspace:*
-        version: link:../performance-auditor
-      '@threeforged/static-optimizer':
-        specifier: workspace:*
-        version: link:../static-optimizer
 
   packages/core:
     dependencies:
@@ -91,8 +75,8 @@ importers:
   packages/instancing-optimizer:
     dependencies:
       '@threeforged/core':
-        specifier: workspace:*
-        version: link:../core
+        specifier: ^0.1.1
+        version: 0.1.1
 
   packages/lod-generator:
     dependencies:
@@ -103,8 +87,8 @@ importers:
         specifier: ^4.0.0
         version: 4.3.0
       '@threeforged/core':
-        specifier: workspace:*
-        version: link:../core
+        specifier: ^0.1.1
+        version: 0.1.1
       meshoptimizer:
         specifier: ^0.20.0
         version: 0.20.0
@@ -112,8 +96,8 @@ importers:
   packages/performance-auditor:
     dependencies:
       '@threeforged/core':
-        specifier: workspace:*
-        version: link:../core
+        specifier: ^0.1.1
+        version: 0.1.1
 
   packages/static-optimizer:
     dependencies:
@@ -124,8 +108,8 @@ importers:
         specifier: ^4.0.0
         version: 4.3.0
       '@threeforged/core':
-        specifier: workspace:*
-        version: link:../core
+        specifier: ^0.1.1
+        version: 0.1.1
 
 packages:
 
@@ -812,6 +796,9 @@ packages:
   '@sindresorhus/merge-streams@2.3.0':
     resolution: {integrity: sha512-LtoMMhxAlorcGhmFYI+LhPgbPZCkgP6ra1YL604EeF6U98pLlQ3iWIGMdWSC+vWmPBWBNgmDBAhnAobLROJmwg==}
     engines: {node: '>=18'}
+
+  '@threeforged/core@0.1.1':
+    resolution: {integrity: sha512-6608NioAxiwFGF+Ed1iWpknRisjZZt2UFteyqIMS85oyXopc6Gc0VEjidBTba+tPExbKsRq72T7yoP1cuUKUNA==}
 
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
@@ -2139,6 +2126,13 @@ snapshots:
     optional: true
 
   '@sindresorhus/merge-streams@2.3.0': {}
+
+  '@threeforged/core@0.1.1':
+    dependencies:
+      '@gltf-transform/core': 4.3.0
+      globby: 14.1.0
+      obj-file-parser: 0.6.2
+      picocolors: 1.1.1
 
   '@types/estree@1.0.8': {}
 

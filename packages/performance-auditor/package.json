@@ -1,6 +1,6 @@
 {
   "name": "@threeforged/performance-auditor",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "description": "Audit Three.js scene performance — draw calls, shader complexity, overdraw, and runtime bottlenecks",
   "license": "MIT",
@@ -30,6 +30,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@threeforged/core": "workspace:*"
+    "@threeforged/core": "^0.1.1"
   }
 }

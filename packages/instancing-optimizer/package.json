@@ -1,6 +1,6 @@
 {
   "name": "@threeforged/instancing-optimizer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Optimize Three.js scenes by converting repeated meshes to instanced rendering",
   "license": "MIT",
@@ -30,6 +30,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@threeforged/core": "workspace:*"
+    "@threeforged/core": "^0.1.1"
   }
 }
