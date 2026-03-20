@@ -29,6 +29,10 @@ yarn-error.log*
 # Test fixtures (generated, large binary files)
 packages/core/tests/fixtures/*.glb
 
+# Studio app (private/commercial — not open source)
+apps/
+threeforged_studio_v_1_plan.md
+
 # Build artifacts
 *.tgz
 

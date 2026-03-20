@@ -16,7 +16,9 @@
     "format": "prettier --write .",
     "clean": "pnpm -r run clean",
     "dev": "pnpm -r --parallel run dev",
-    "typecheck": "pnpm -r run typecheck"
+    "typecheck": "pnpm -r run typecheck",
+    "studio:dev": "pnpm --filter @threeforged/studio dev",
+    "studio:build": "pnpm --filter @threeforged/studio build"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
